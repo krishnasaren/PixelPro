@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelForge — Professional Image Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFBFC;
+  --white: #FFFFFF;
+  --border: #E8EAED;
+  --border-light: #F0F2F5;
+  --text: #111827;
+  --text2: #4B5563;
+  --text3: #9CA3AF;
+  --blue: #3B6EF7;
+  --blue-dark: #2754D8;
+  --blue-light: #EEF2FE;
+  --blue-mid: #DBEAFE;
+  --indigo: #4F46E5;
+  --purple: #7C3AED;
+  --teal: #0D9488;
+  --red: #EF4444;
+  --amber: #F59E0B;
+  --green: #10B981;
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-xl: 0 24px 64px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06);
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; }
+
+/* ── NAV ────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(250,251,252,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 700; font-size: 22px; color: var(--text);
+}
+.nav-logo-icon {
+  width: 36px; height: 36px;
+  background: var(--blue);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.nav-logo-icon::before {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 2px;
+  top: 5px; left: 5px;
+}
+.nav-logo-icon::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 1px;
+  bottom: 4px; right: 4px;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 32px; list-style: none;
+}
+.nav-links a {
+  font-size: 14px; font-weight: 400; color: var(--text2);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.15s;
+}
+.btn-ghost {
+  background: transparent; color: var(--text2);
+}
+.btn-ghost:hover { background: var(--border-light); color: var(--text); }
+.btn-primary {
+  background: var(--blue); color: white;
+  box-shadow: 0 1px 4px rgba(59,110,247,0.3);
+}
+.btn-primary:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,110,247,0.35); }
+.btn-lg { padding: 13px 32px; font-size: 15px; border-radius: 10px; }
+.btn-outline {
+  background: transparent; color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+/* ── HERO ───────────────────────────────────── */
+.hero {
+  padding: 120px 40px 80px;
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--blue-light);
+  color: var(--blue-dark);
+  font-size: 12px; font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 100px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(59,110,247,0.15);
+}
+.hero-badge-dot {
+  width: 6px; height: 6px;
+  background: var(--blue);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.85)} }
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: 56px; font-weight: 700;
+  line-height: 1.1; letter-spacing: -1.5px;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.hero h1 .accent { color: var(--blue); }
+.hero p {
+  font-size: 17px; color: var(--text2);
+  line-height: 1.7; margin-bottom: 36px;
+  max-width: 440px;
+}
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-stats {
+  display: flex; gap: 32px; margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+.hero-stat-num {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: 700; color: var(--text);
+}
+.hero-stat-label { font-size: 13px; color: var(--text3); margin-top: 2px; }
+
+/* ── EDITOR PREVIEW ─────────────────────────── */
+.hero-preview {
+  position: relative;
+}
+.editor-mockup {
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  position: relative;
+}
+.editor-mockup-bar {
+  height: 36px;
+  background: #F0F2F5;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 14px;
+  gap: 6px;
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot.red { background: #FF5F57; }
+.dot.yellow { background: #FEBC2E; }
+.dot.green { background: #28C840; }
+.editor-mockup-body {
+  display: flex; height: calc(100% - 36px);
+}
+.mock-tools {
+  width: 44px; background: #FAFAFA;
+  border-right: 1px solid var(--border);
+  padding: 10px 8px;
+  display: flex; flex-direction: column; gap: 4px; align-items: center;
+}
+.mock-tool {
+  width: 28px; height: 28px;
+  background: transparent; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; cursor: pointer;
+}
+.mock-tool.active { background: #EEF2FE; color: var(--blue); }
+.mock-canvas {
+  flex: 1;
+  background: #CDD3DA;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.mock-canvas-inner {
+  width: 70%; height: 75%;
+  background: white;
+  border-radius: 2px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  position: relative; overflow: hidden;
+}
+.mock-canvas-art { width: 100%; height: 100%; }
+.mock-panel {
+  width: 120px; background: #FFFFFF;
+  border-left: 1px solid var(--border);
+  padding: 10px 8px;
+}
+.mock-panel-title {
+  font-size: 9px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text3); margin-bottom: 8px;
+}
+.mock-layer {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 6px; border-radius: 4px;
+  margin-bottom: 3px; cursor: pointer;
+}
+.mock-layer.active { background: var(--blue-light); }
+.mock-layer-thumb {
+  width: 18px; height: 18px; border-radius: 3px; flex-shrink: 0;
+}
+.mock-layer-name { font-size: 8px; color: var(--text2); }
+
+/* Floating annotations */
+.float-badge {
+  position: absolute;
+  background: white; border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 14px;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap; font-size: 12px; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+  animation: float 3s ease-in-out infinite;
+}
+.float-badge:nth-child(2) { animation-delay: 0.8s; }
+.float-badge:nth-child(3) { animation-delay: 1.6s; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.fb-icon { font-size: 16px; }
+.float-1 { top: -16px; right: 20px; }
+.float-2 { bottom: 30px; left: -20px; }
+
+/* ── FEATURES ───────────────────────────────── */
+.section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
+.section-label {
+  font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--blue);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 40px; font-weight: 700;
+  line-height: 1.15; letter-spacing: -1px;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.section-subtitle {
+  font-size: 16px; color: var(--text2);
+  max-width: 520px; line-height: 1.7;
+  margin-bottom: 56px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.feature-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.feature-card:hover {
+  border-color: var(--blue);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.feature-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: transparent;
+  transition: background 0.2s;
+}
+.feature-card:hover::before { background: var(--blue); }
+.feature-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 18px;
+}
+.feature-icon.blue { background: var(--blue-light); }
+.feature-icon.purple { background: #F3F0FF; }
+.feature-icon.teal { background: #F0FDFA; }
+.feature-icon.amber { background: #FFFBEB; }
+.feature-icon.red { background: #FFF1F2; }
+.feature-icon.green { background: #F0FFF4; }
+.feature-card h3 {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 600;
+  margin-bottom: 8px; color: var(--text);
+}
+.feature-card p { font-size: 13.5px; color: var(--text2); line-height: 1.65; }
+
+/* ── PIXEL EDITOR SHOWCASE ──────────────────── */
+.pixel-section {
+  background: var(--text);
+  border-radius: 32px;
+  padding: 80px 64px;
+  margin: 0 40px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: center;
+  overflow: hidden; position: relative;
+}
+.pixel-section::before {
+  content: '';
+  position: absolute; top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(59,110,247,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.pixel-section-text .section-label { color: #60A5FA; }
+.pixel-section-text .section-title { color: white; max-width: 400px; margin-bottom: 16px; }
+.pixel-section-text p { color: #9CA3AF; font-size: 15px; line-height: 1.7; margin-bottom: 32px; }
+.pixel-features-list {
+  list-style: none; display: flex; flex-direction: column; gap: 14px;
+}
+.pixel-features-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  color: #D1D5DB; font-size: 14px;
+}
+.pfl-icon {
+  width: 20px; height: 20px; flex-shrink: 0;
+  background: rgba(59,110,247,0.2);
+  border: 1px solid rgba(59,110,247,0.4);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #93C5FD; margin-top: 2px;
+}
+.pixel-demo {
+  position: relative;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.pixel-grid-demo {
+  background: #1A1A2E;
+  border-radius: 16px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  aspect-ratio: 4/3;
+}
+.pixel-grid-svg { width: 100%; height: 100%; }
+.pixel-info-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex; gap: 16px;
+}
+.pixel-coord { font-family: var(--font-mono); font-size: 11px; color: #93C5FD; }
+.pixel-rgba-display { display: flex; gap: 8px; }
+.rgba-item {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.rgba-label { font-size: 9px; color: #6B7280; text-transform: uppercase; letter-spacing: 1px; }
+.rgba-val {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+}
+.rgba-val.r { color: #FCA5A5; }
+.rgba-val.g { color: #6EE7B7; }
+.rgba-val.b { color: #93C5FD; }
+.rgba-val.a { color: #D1D5DB; }
+
+/* ── CODE EDITOR SECTION ────────────────────── */
+.code-section {
+  padding: 80px 40px;
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+}
+.code-demo {
+  background: #0D1117;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+}
+.code-bar {
+  background: #161B22;
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.code-tabs { display: flex; gap: 4px; }
+.code-tab {
+  font-family: var(--font-mono);
+  font-size: 11px; padding: 4px 12px;
+  border-radius: 4px; color: #8B949E;
+}
+.code-tab.active { background: #1F2937; color: #E6EDF3; }
+.code-run-btn {
+  background: var(--blue); color: white;
+  border: none; padding: 5px 14px;
+  border-radius: 6px; font-size: 12px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+}
+.code-body {
+  padding: 20px 24px;
+  font-family: var(--font-mono);
+  font-size: 12px; line-height: 1.7;
+  color: #ffffff;
+}
+.cl { display: block; }
+.kw { color: #FF7B72; }
+.fn { color: #D2A8FF; }
+.nm { color: #79C0FF; }
+.st { color: #A5D6FF; }
+.cm { color: #8B949E; font-style: italic; }
+.num { color: #F2CC60; }
+.op { color: #FF7B72; }
+.code-output {
+  padding: 12px 16px;
+  background: #0A0F14;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.out-success { color: #3FB950; }
+.out-info { color: #58A6FF; }
+
+/* ── TOOLS SHOWCASE ─────────────────────────── */
+.tools-showcase { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
+.tools-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-top: 48px;
+}
+.tool-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.tool-card:hover {
+  border-color: var(--blue);
+  box-shadow: 0 4px 16px rgba(59,110,247,0.12);
+}
+.tool-card-icon {
+  font-size: 24px; margin-bottom: 10px;
+  width: 44px; height: 44px;
+  background: var(--blue-light); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.tool-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.tool-card p { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.tool-shortcut {
+  display: inline-block;
+  background: var(--border-light); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 6px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--text3);
+  margin-top: 8px;
+}
+
+/* ── CTA ────────────────────────────────────── */
+.cta-section {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 100px 40px;
+  text-align: center;
+}
+.cta-section .section-title { margin: 0 auto 16px; max-width: 600px; }
+.cta-section p { color: var(--text2); font-size: 16px; max-width: 480px; margin: 0 auto 40px; }
+.cta-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.cta-note { font-size: 12px; color: var(--text3); margin-top: 16px; }
+
+/* ── FOOTER ─────────────────────────────────── */
+footer {
+  padding: 48px 40px;
+  max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid var(--border);
+}
+.footer-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 13px; color: var(--text3); transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+.footer-copy { font-size: 12px; color: var(--text3); }
+
+/* ── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; gap: 40px; padding: 100px 24px 60px; }
+  .hero h1 { font-size: 40px; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .pixel-section { grid-template-columns: 1fr; margin: 0 16px; padding: 48px 32px; }
+  .code-section { grid-template-columns: 1fr; padding: 60px 24px; }
+  .tools-grid { grid-template-columns: repeat(2, 1fr); }
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  footer { flex-direction: column; gap: 24px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon"></div>
+    PixelForge
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pixel">Pixel Editor</a></li>
+    <li><a href="#code">Code Editor</a></li>
+    <li><a href="#tools">Tools</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn btn-ghost">Sign in</button>
+    <a href="editor.html" class="btn btn-primary">Open Editor</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Now with Pixel-Level Editing
+    </div>
+    <h1>Design. Edit. <span class="accent">Pixel Perfect.</span></h1>
+    <p>The professional image editor that gives you complete control — from high-level design tools to raw pixel manipulation. Edit images one pixel at a time, or write code to transform thousands at once.</p>
+    <div class="hero-cta">
+      <a href="editor.html" class="btn btn-primary btn-lg">Start Editing Free</a>
+      <button class="btn btn-outline btn-lg" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Explore Features</button>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">50+</div>
+        <div class="hero-stat-label">Professional Tools</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">1px</div>
+        <div class="hero-stat-label">Edit Precision</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">∞</div>
+        <div class="hero-stat-label">Undo History</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-preview">
+    <div class="float-badge float-1">
+      <span class="fb-icon">🎨</span>
+      <span>Pixel selected: <strong>#3B6EF7</strong></span>
+    </div>
+    <div class="float-badge float-2">
+      <span class="fb-icon">⚡</span>
+      <span>Code executed in <strong>12ms</strong></span>
+    </div>
+    <div class="editor-mockup">
+      <div class="editor-mockup-bar">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <div class="editor-mockup-body">
+        <div class="mock-tools">
+          <div class="mock-tool">↖</div>
+          <div class="mock-tool active">🖌</div>
+          <div class="mock-tool">⬛</div>
+          <div class="mock-tool">⭕</div>
+          <div class="mock-tool">T</div>
+          <div class="mock-tool">🔍</div>
+          <div class="mock-tool">▪</div>
+        </div>
+        <div class="mock-canvas">
+          <div class="mock-canvas-inner">
+            <svg class="mock-canvas-art" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#DBEAFE"/>
+                  <stop offset="100%" stop-color="#EDE9FE"/>
+                </linearGradient>
+              </defs>
+              <rect width="200" height="150" fill="url(#sky)"/>
+              <ellipse cx="100" cy="180" rx="90" ry="60" fill="#6EE7B7" opacity="0.4"/>
+              <circle cx="60" cy="50" r="20" fill="#FDE68A" opacity="0.8"/>
+              <rect x="80" y="70" width="40" height="55" rx="3" fill="#4A7CF7"/>
+              <rect x="90" y="80" width="10" height="12" rx="1" fill="white" opacity="0.9"/>
+              <rect x="107" y="80" width="10" height="12" rx="1" fill="white" opacity="0.9"/>
+              <rect x="90" y="100" width="20" height="25" rx="2" fill="#1e40af"/>
+              <!-- pixel grid overlay on a small area -->
+              <g opacity="0.9">
+                <rect x="140" y="20" width="56" height="56" fill="white" opacity="0.95" rx="4"/>
+                <rect x="140" y="20" width="8" height="8" fill="#3B6EF7"/>
+                <rect x="148" y="20" width="8" height="8" fill="#5B8AF9"/>
+                <rect x="156" y="20" width="8" height="8" fill="#3B6EF7"/>
+                <rect x="164" y="20" width="8" height="8" fill="#7BA8FF"/>
+                <rect x="172" y="20" width="8" height="8" fill="#3B6EF7"/>
+                <rect x="180" y="20" width="8" height="8" fill="#5B8AF9"/>
+                <rect x="188" y="20" width="8" height="8" fill="#3B6EF7"/>
+                <rect x="140" y="28" width="8" height="8" fill="#93C5FD"/>
+                <rect x="148" y="28" width="8" height="8" fill="#3B6EF7"/>
+                <rect x="156" y="28" width="8" height="8" fill="#BFDBFE"/>
+                <rect x="164" y="28" width="8" height="8" fill="#3B6EF7"/>
+                <rect x="172" y="28" width="8" height="8" fill="#93C5FD"/>
+                <rect x="180" y="28" width="8" height="8" fill="#3B6EF7"/>
+                <rect x="188" y="28" width="8" height="8" fill="#BFDBFE"/>
+                <!-- more pixel rows -->
+                <rect x="140" y="36" width="8" height="8" fill="#3B6EF7"/>
+                <rect x="148" y="36" width="8" height="8" fill="#DBEAFE"/>
+                <rect x="156" y="36" width="8" height="8" fill="#3B6EF7" opacity="0.7"/>
+                <rect x="164" y="36" width="8" height="8" fill="#93C5FD"/>
+                <rect x="172" y="36" width="8" height="8" fill="#3B6EF7"/>
+                <rect x="180" y="36" width="8" height="8" fill="#BFDBFE"/>
+                <rect x="188" y="36" width="8" height="8" fill="#3B6EF7" opacity="0.5"/>
+                <!-- grid lines -->
+                <line x1="148" y1="20" x2="148" y2="76" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="156" y1="20" x2="156" y2="76" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="164" y1="20" x2="164" y2="76" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="172" y1="20" x2="172" y2="76" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="180" y1="20" x2="180" y2="76" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="188" y1="20" x2="188" y2="76" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="140" y1="28" x2="196" y2="28" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="140" y1="36" x2="196" y2="36" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="140" y1="44" x2="196" y2="44" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="140" y1="52" x2="196" y2="52" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="140" y1="60" x2="196" y2="60" stroke="#E1E4E8" stroke-width="0.5"/>
+                <line x1="140" y1="68" x2="196" y2="68" stroke="#E1E4E8" stroke-width="0.5"/>
+                <!-- highlight selected pixel -->
+                <rect x="164" y="28" width="8" height="8" fill="none" stroke="#3B6EF7" stroke-width="1.5"/>
+              </g>
+              <!-- text -->
+              <text x="100" y="140" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif" opacity="0.5">PixelForge Canvas</text>
+            </svg>
+          </div>
+        </div>
+        <div class="mock-panel">
+          <div class="mock-panel-title">Layers</div>
+          <div class="mock-layer active">
+            <div class="mock-layer-thumb" style="background:#4A7CF7;"></div>
+            <span class="mock-layer-name">Pixels</span>
+          </div>
+          <div class="mock-layer">
+            <div class="mock-layer-thumb" style="background:linear-gradient(135deg,#6EE7B7,#3B82F6);"></div>
+            <span class="mock-layer-name">Sky</span>
+          </div>
+          <div class="mock-layer">
+            <div class="mock-layer-thumb" style="background:white; border:1px solid #eee;"></div>
+            <span class="mock-layer-name">BG</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label">Everything You Need</div>
+  <div class="section-title">Professional tools,<br>intuitive interface</div>
+  <div class="section-subtitle">From quick edits to complex compositions, PixelForge gives you the precision and flexibility that professional work demands.</div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon blue">🎨</div>
+      <h3>Full Layer System</h3>
+      <p>Unlimited layers with blend modes, opacity controls, grouping, and non-destructive editing. Every layer is independent and editable at any time.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon purple">▪</div>
+      <h3>Pixel-Level Editing</h3>
+      <p>Zoom into any image and edit individual pixels with precision. View real RGBA values, select multiple pixels at once, and apply changes in bulk.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon teal">💻</div>
+      <h3>Code Editor</h3>
+      <p>Write JavaScript or Python to manipulate images programmatically. Access every pixel via the built-in canvas API and execute transformations instantly.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon amber">✨</div>
+      <h3>Smart Filters & Effects</h3>
+      <p>20+ real-time filters including brightness, contrast, HSL, curves, blur, sharpen, vignette, sepia, and noise. Apply to selections or entire layers.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon red">⚡</div>
+      <h3>Smart Selection Tools</h3>
+      <p>Rectangular marquee, lasso, magic wand, and smart selection. Select by color range, tolerance, and feathering for precise editing.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon green">📤</div>
+      <h3>Flexible Export</h3>
+      <p>Export to PNG, JPEG, WebP, and SVG. Control quality, resolution, and format settings. Server-side processing ensures optimal output quality.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PIXEL EDITOR SECTION -->
+<section id="pixel">
+  <div class="pixel-section">
+    <div class="pixel-section-text">
+      <div class="section-label">The Core Feature</div>
+      <div class="section-title">Edit Every Single Pixel</div>
+      <p>No other editor gives you this level of control. Zoom in until individual pixels are visible as large squares, then click to paint, inspect, or batch-edit. Every pixel exposes its raw RGBA data.</p>
+      <ul class="pixel-features-list">
+        <li><span class="pfl-icon">✓</span> Click any pixel to view its exact R, G, B, A values</li>
+        <li><span class="pfl-icon">✓</span> Shift+click to select multiple pixels simultaneously</li>
+        <li><span class="pfl-icon">✓</span> Batch edit — change all selected pixels at once</li>
+        <li><span class="pfl-icon">✓</span> Real-time pixel inspector with hex and decimal values</li>
+        <li><span class="pfl-icon">✓</span> Select all pixels matching a specific color</li>
+        <li><span class="pfl-icon">✓</span> Drag to paint across multiple pixels</li>
+      </ul>
+    </div>
+    <div class="pixel-demo">
+      <div class="pixel-grid-demo">
+        <svg class="pixel-grid-svg" viewBox="0 0 300 225" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="225" fill="#0D1117"/>
+          <!-- pixel grid -->
+          <g>
+            <!-- row 0 -->
+            <rect x="10" y="10" width="26" height="26" fill="#1A1A2E"/><rect x="36" y="10" width="26" height="26" fill="#1E2A45"/>
+            <rect x="62" y="10" width="26" height="26" fill="#3B6EF7"/><rect x="88" y="10" width="26" height="26" fill="#4A7CF7"/>
+            <rect x="114" y="10" width="26" height="26" fill="#3B6EF7"/><rect x="140" y="10" width="26" height="26" fill="#5B8AF9"/>
+            <rect x="166" y="10" width="26" height="26" fill="#3B6EF7"/><rect x="192" y="10" width="26" height="26" fill="#4A7CF7"/>
+            <rect x="218" y="10" width="26" height="26" fill="#1E2A45"/><rect x="244" y="10" width="26" height="26" fill="#1A1A2E"/>
+            <!-- row 1 -->
+            <rect x="10" y="36" width="26" height="26" fill="#1E2A45"/><rect x="36" y="36" width="26" height="26" fill="#3B6EF7"/>
+            <rect x="62" y="36" width="26" height="26" fill="#5B8AF9"/><rect x="88" y="36" width="26" height="26" fill="#93C5FD"/>
+            <rect x="114" y="36" width="26" height="26" fill="#BFDBFE"/><rect x="140" y="36" width="26" height="26" fill="#93C5FD"/>
+            <rect x="166" y="36" width="26" height="26" fill="#5B8AF9"/><rect x="192" y="36" width="26" height="26" fill="#3B6EF7"/>
+            <rect x="218" y="36" width="26" height="26" fill="#1E2A45"/><rect x="244" y="36" width="26" height="26" fill="#1A1A2E"/>
+            <!-- row 2 -->
+            <rect x="10" y="62" width="26" height="26" fill="#3B6EF7"/><rect x="36" y="62" width="26" height="26" fill="#5B8AF9"/>
+            <rect x="62" y="62" width="26" height="26" fill="#BFDBFE"/><rect x="88" y="62" width="26" height="26" fill="#DBEAFE"/>
+            <rect x="114" y="62" width="26" height="26" fill="#EFF6FF"/><rect x="140" y="62" width="26" height="26" fill="#DBEAFE"/>
+            <rect x="166" y="62" width="26" height="26" fill="#BFDBFE"/><rect x="192" y="62" width="26" height="26" fill="#5B8AF9"/>
+            <rect x="218" y="62" width="26" height="26" fill="#3B6EF7"/><rect x="244" y="62" width="26" height="26" fill="#1E2A45"/>
+            <!-- row 3 — selected row highlight -->
+            <rect x="10" y="88" width="26" height="26" fill="#4A7CF7"/><rect x="36" y="88" width="26" height="26" fill="#93C5FD"/>
+            <rect x="62" y="88" width="26" height="26" fill="#DBEAFE"/><rect x="88" y="88" width="26" height="26" fill="#EFF6FF"/>
+            <rect x="114" y="88" width="26" height="26" fill="#EFF6FF"/><rect x="140" y="88" width="26" height="26" fill="#EFF6FF"/>
+            <rect x="166" y="88" width="26" height="26" fill="#DBEAFE"/><rect x="192" y="88" width="26" height="26" fill="#93C5FD"/>
+            <rect x="218" y="88" width="26" height="26" fill="#4A7CF7"/><rect x="244" y="88" width="26" height="26" fill="#1E2A45"/>
+            <!-- row 4 -->
+            <rect x="10" y="114" width="26" height="26" fill="#3B6EF7"/><rect x="36" y="114" width="26" height="26" fill="#5B8AF9"/>
+            <rect x="62" y="114" width="26" height="26" fill="#BFDBFE"/><rect x="88" y="114" width="26" height="26" fill="#DBEAFE"/>
+            <rect x="114" y="114" width="26" height="26" fill="#EFF6FF"/><rect x="140" y="114" width="26" height="26" fill="#DBEAFE"/>
+            <rect x="166" y="114" width="26" height="26" fill="#BFDBFE"/><rect x="192" y="114" width="26" height="26" fill="#5B8AF9"/>
+            <rect x="218" y="114" width="26" height="26" fill="#3B6EF7"/><rect x="244" y="114" width="26" height="26" fill="#1E2A45"/>
+            <!-- selected pixel highlight -->
+            <rect x="114" y="62" width="26" height="26" fill="#EFF6FF" stroke="#FFD700" stroke-width="2.5"/>
+            <!-- grid lines -->
+            <line x1="10" y1="36" x2="270" y2="36" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="10" y1="62" x2="270" y2="62" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="10" y1="88" x2="270" y2="88" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="10" y1="114" x2="270" y2="114" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="36" y1="10" x2="36" y2="140" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="62" y1="10" x2="62" y2="140" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="88" y1="10" x2="88" y2="140" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="114" y1="10" x2="114" y2="140" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="140" y1="10" x2="140" y2="140" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="166" y1="10" x2="166" y2="140" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="192" y1="10" x2="192" y2="140" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="218" y1="10" x2="218" y2="140" stroke="#1F2937" stroke-width="0.5"/>
+            <line x1="244" y1="10" x2="244" y2="140" stroke="#1F2937" stroke-width="0.5"/>
+          </g>
+          <!-- Inspector panel inside preview -->
+          <rect x="8" y="152" width="284" height="64" rx="8" fill="#161B22" stroke="#30363D" stroke-width="1"/>
+          <text x="20" y="170" font-size="9" fill="#8B949E" font-family="monospace">PIXEL INSPECTOR</text>
+          <text x="20" y="185" font-size="8" fill="#58A6FF" font-family="monospace">Position: (4, 2)</text>
+          <text x="100" y="185" font-size="8" fill="#3FB950" font-family="monospace">Hex: #EFF6FF</text>
+          <text x="200" y="185" font-size="8" fill="#D2A8FF" font-family="monospace">Alpha: 255</text>
+          <text x="20" y="200" font-size="8" fill="#FCA5A5" font-family="monospace">R: 239</text>
+          <text x="60" y="200" font-size="8" fill="#6EE7B7" font-family="monospace">G: 246</text>
+          <text x="100" y="200" font-size="8" fill="#93C5FD" font-family="monospace">B: 255</text>
+          <text x="140" y="200" font-size="8" fill="#D1D5DB" font-family="monospace">A: 255</text>
+          <!-- zoom level -->
+          <text x="230" y="200" font-size="8" fill="#F59E0B" font-family="monospace">ZOOM: 32x</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE EDITOR SECTION -->
+<section class="code-section" id="code">
+  <div>
+    <div class="section-label">Code-Driven Editing</div>
+    <div class="section-title">Write Code,<br>Transform Images</div>
+    <p style="color:var(--text2); font-size:16px; line-height:1.7; margin-bottom:24px;">Access the raw pixel array of any layer and transform it programmatically. The built-in code editor gives you a full JavaScript and Python API to manipulate images with precision that no GUI tool can match.</p>
+    <ul style="list-style:none; display:flex; flex-direction:column; gap:12px;">
+      <li style="display:flex; gap:10px; align-items:flex-start; font-size:14px; color:var(--text2);">
+        <span style="color:var(--blue); font-size:18px; margin-top:-2px;">→</span>
+        Loop through every pixel and apply custom mathematical transformations
+      </li>
+      <li style="display:flex; gap:10px; align-items:flex-start; font-size:14px; color:var(--text2);">
+        <span style="color:var(--blue); font-size:18px; margin-top:-2px;">→</span>
+        Write custom filters beyond what the UI offers
+      </li>
+      <li style="display:flex; gap:10px; align-items:flex-start; font-size:14px; color:var(--text2);">
+        <span style="color:var(--blue); font-size:18px; margin-top:-2px;">→</span>
+        Use Python with NumPy and Pillow for server-side execution
+      </li>
+    </ul>
+    <div style="margin-top:36px;">
+      <a href="editor.html" class="btn btn-primary btn-lg">Try in Editor</a>
+    </div>
+  </div>
+  <div class="code-demo">
+    <div class="code-bar">
+      <div class="code-tabs">
+        <div class="code-tab active">pixel_art.js</div>
+        <div class="code-tab">filters.py</div>
+      </div>
+      <button class="code-run-btn">▶ Run</button>
+    </div>
+    <div class="code-body">
+      <span class="cl"><span class="cm">// Invert + enhance contrast</span></span>
+      <span class="cl"><span class="kw">const</span> <span class="nm">w</span> <span class="op">=</span> <span class="nm">canvas</span>.<span class="nm">width</span>, <span class="nm">h</span> <span class="op">=</span> <span class="nm">canvas</span>.<span class="nm">height</span>;</span>
+      <span class="cl">&nbsp;</span>
+      <span class="cl"><span class="kw">for</span> (<span class="kw">let</span> <span class="nm">y</span> <span class="op">=</span> <span class="num">0</span>; <span class="nm">y</span> <span class="op">&lt;</span> <span class="nm">h</span>; <span class="nm">y</span><span class="op">++</span>) {</span>
+      <span class="cl">&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">let</span> <span class="nm">x</span> <span class="op">=</span> <span class="num">0</span>; <span class="nm">x</span> <span class="op">&lt;</span> <span class="nm">w</span>; <span class="nm">x</span><span class="op">++</span>) {</span>
+      <span class="cl">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> <span class="nm">p</span> <span class="op">=</span> <span class="fn">getPixel</span>(<span class="nm">x</span>, <span class="nm">y</span>);</span>
+      <span class="cl">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> <span class="nm">r</span> <span class="op">=</span> <span class="num">255</span> <span class="op">-</span> <span class="nm">p</span>.<span class="nm">r</span>;</span>
+      <span class="cl">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> <span class="nm">g</span> <span class="op">=</span> <span class="num">255</span> <span class="op">-</span> <span class="nm">p</span>.<span class="nm">g</span>;</span>
+      <span class="cl">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> <span class="nm">b</span> <span class="op">=</span> <span class="num">255</span> <span class="op">-</span> <span class="nm">p</span>.<span class="nm">b</span>;</span>
+      <span class="cl">&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">setPixel</span>(<span class="nm">x</span>, <span class="nm">y</span>, <span class="nm">r</span>, <span class="nm">g</span>, <span class="nm">b</span>, <span class="nm">p</span>.<span class="nm">a</span>);</span>
+      <span class="cl">&nbsp;&nbsp;}}</span>
+      <span class="cl">&nbsp;</span>
+      <span class="cl"><span class="cm">// Apply to selection only</span></span>
+      <span class="cl"><span class="fn">applyToSelection</span>(<span class="nm">pixels</span>);</span>
+    </div>
+    <div class="code-output">
+      <span class="out-success">✓ Executed in 8ms</span><br>
+      <span class="out-info">ℹ Pixels modified: 1,920,000</span>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS SHOWCASE -->
+<section class="tools-showcase" id="tools">
+  <div class="section-label">Complete Toolset</div>
+  <div class="section-title">Every tool you need</div>
+  <div class="section-subtitle">A full suite of professional tools organized for efficient workflow — from selection and drawing to advanced transformation and export.</div>
+  <div class="tools-grid">
+    <div class="tool-card"><div class="tool-card-icon">🖌</div><h4>Brush</h4><p>Variable size, opacity, and hardness with pressure simulation</p><span class="tool-shortcut">B</span></div>
+    <div class="tool-card"><div class="tool-card-icon">⬜</div><h4>Selection</h4><p>Rectangular, elliptical, and lasso selection tools</p><span class="tool-shortcut">M</span></div>
+    <div class="tool-card"><div class="tool-card-icon">▪</div><h4>Pixel Editor</h4><p>Click individual pixels to inspect and edit raw RGBA data</p><span class="tool-shortcut">X</span></div>
+    <div class="tool-card"><div class="tool-card-icon">T</div><h4>Text</h4><p>Rich text with fonts, sizes, colors, and alignment</p><span class="tool-shortcut">T</span></div>
+    <div class="tool-card"><div class="tool-card-icon">🔷</div><h4>Shapes</h4><p>Rectangle, ellipse, line, polygon with fills and strokes</p><span class="tool-shortcut">U</span></div>
+    <div class="tool-card"><div class="tool-card-icon">🪣</div><h4>Fill Bucket</h4><p>Flood fill with tolerance control and anti-aliasing</p><span class="tool-shortcut">G</span></div>
+    <div class="tool-card"><div class="tool-card-icon">🌈</div><h4>Gradient</h4><p>Linear and radial gradients with custom color stops</p><span class="tool-shortcut">Shift+G</span></div>
+    <div class="tool-card"><div class="tool-card-icon">💧</div><h4>Eyedropper</h4><p>Sample any pixel color from canvas or screen</p><span class="tool-shortcut">I</span></div>
+    <div class="tool-card"><div class="tool-card-icon">✂</div><h4>Crop</h4><p>Non-destructive crop with aspect ratio lock</p><span class="tool-shortcut">C</span></div>
+    <div class="tool-card"><div class="tool-card-icon">🔍</div><h4>Zoom</h4><p>Smooth zoom from 1% to 3200% for pixel-level work</p><span class="tool-shortcut">Z</span></div>
+    <div class="tool-card"><div class="tool-card-icon">↖</div><h4>Move</h4><p>Move and transform layers and selections freely</p><span class="tool-shortcut">V</span></div>
+    <div class="tool-card"><div class="tool-card-icon">⚡</div><h4>Wand</h4><p>Smart selection by color with adjustable tolerance</p><span class="tool-shortcut">W</span></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-label" style="text-align:center; justify-content:center;">Get Started</div>
+  <div class="section-title">Start editing with pixel precision</div>
+  <p>No sign-up required. Open the editor and start creating immediately. Full features, no limitations.</p>
+  <div class="cta-actions">
+    <a href="editor.html" class="btn btn-primary btn-lg">Open PixelForge Editor</a>
+    <button class="btn btn-outline btn-lg">Watch Demo</button>
+  </div>
+  <p class="cta-note">100% browser-based · No installation needed · Python backend for advanced processing</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="nav-logo-icon" style="width:28px;height:28px;border-radius:8px;"></div>
+    PixelForge
+  </div>
+  <div class="footer-links">
+    <a href="#">Features</a>
+    <a href="/docs">Docs</a>
+    <a href="#">GitHub</a>
+    <a href="/docs">API</a>
+  </div>
+  <div class="footer-copy">© 2025 PixelForge · MIT License</div>
+</footer>
+
+</body>
+</html>
